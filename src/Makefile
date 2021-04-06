@@ -11,6 +11,7 @@ HOST_JSON=$(HOSTNAME).json
 
 CA=$(PREFIX)-ca
 CA_PEM=$(CA).pem
+CA_PFX=$(CA).pfx
 CA_CRT=$(CA).crt
 CA_CSR=$(CA).csr
 CA_KEY_PEM=$(CA)-key.pem
@@ -18,10 +19,16 @@ CA_KEY=$(CA).key
 
 INTERMEDIATE_CA=$(PREFIX)-intermediate-ca
 INTERMEDIATE_CA_PEM=$(INTERMEDIATE_CA).pem
+INTERMEDIATE_CA_PFX=$(INTERMEDIATE_CA).pfx
 INTERMEDIATE_CA_CRT=$(INTERMEDIATE_CA).crt
 INTERMEDIATE_CA_CSR=$(INTERMEDIATE_CA).csr
 INTERMEDIATE_CA_KEY_PEM=$(INTERMEDIATE_CA)-key.pem
 INTERMEDIATE_CA_KEY=$(INTERMEDIATE_CA).key
+
+INSTALL_CA_AND_INTERMEDIATE_CA=install-root-$(CA).sh
+UNINSTALL_CA_AND_INTERMEDIATE_CA=uninstall-root-$(CA).sh
+INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA=install-browser-$(CA).sh
+UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA=uninstall-browser-$(CA).sh
 
 HOST_SERVER=$(PREFIX)-$(HOSTNAME)-server
 HOST_SERVER_PEM=$(HOST_SERVER).pem
@@ -48,7 +55,7 @@ HOST_HAPROXY_PEM=$(PREFIX)-$(HOSTNAME)-haproxy.pem
 
 .PHONY: all
 
-all: check ca intermediate-ca $(HOSTNAME)
+all: check ca intermediate-ca $(HOSTNAME) $(INSTALL_CA_AND_INTERMEDIATE_CA) $(UNINSTALL_CA_AND_INTERMEDIATE_CA) $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA) $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 	echo done
 
 .PHONY: check
@@ -58,18 +65,52 @@ check:
 
 .PHONY: ca intermediate-ca $(HOSTNAME)
 
-ca: $(CA_PEM)
-intermediate-ca: $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM)
+ca: $(CA_PEM) $(CA_PFX)
+intermediate-ca: $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) $(INTERMEDIATE_CA_PFX)
 $(HOSTNAME): $(HOST_SERVER_PEM) $(HOST_PEER_PEM) $(HOST_CLIENT_PEM) $(HOST_HAPROXY_PEM)
 
 $(CA_PEM): ca.json
 	cfssl gencert -initca ca.json | cfssljson -bare $(CA)
+
+$(CA_PFX): $(CA_PEM)
+	openssl pkcs12 -export -nokeys -in $(CA_PEM) -out $(CA_PFX) -passout pass:
 
 $(INTERMEDIATE_CA_PEM): intermediate-ca.json
 	cfssl gencert -initca intermediate-ca.json | cfssljson -bare $(INTERMEDIATE_CA)
 
 $(INTERMEDIATE_CA_KEY_PEM): $(INTERMEDIATE_CA_PEM) $(CA_PEM) cfssl.json $(INTERMEDIATE_CA_CSR)
 	cfssl sign -ca $(CA_PEM) -ca-key $(CA_KEY_PEM) -config cfssl.json -profile intermediate-ca $(INTERMEDIATE_CA_CSR) | cfssljson -bare $(INTERMEDIATE_CA)
+
+$(INTERMEDIATE_CA_PFX): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM)
+	openssl pkcs12 -export -nokeys -in $(INTERMEDIATE_CA_PEM) -out $(INTERMEDIATE_CA_PFX) -passout pass:
+
+$(INSTALL_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
+	sed -e "s/CA_FILE/$(CA)/g" < install-cert-ca.template > $(INSTALL_CA_AND_INTERMEDIATE_CA)
+	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(INSTALL_CA_AND_INTERMEDIATE_CA)
+	chmod 755 $(INSTALL_CA_AND_INTERMEDIATE_CA)
+
+$(UNINSTALL_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
+	sed -e "s/CA_FILE/$(CA)/g" < uninstall-cert-ca.template > $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
+	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
+	chmod 755 $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
+
+$(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
+	sed -e "s/CA_FILE/$(CA)/g" < install-cert-ca-browser.template > $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	$(eval NAME := $(shell openssl x509 -in $(CA_PEM) -text | grep -e "CN =" | head -1 | sed -e 's/.*CN = //' ))
+	sed -i "s/NAME/$(NAME)/g" $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	$(eval INTERMEDIATE := $(shell openssl x509 -in $(INTERMEDIATE_CA_PEM) -text | grep -e "CN =" | head -1 | sed -e 's/.*CN = //' ))
+	sed -i "s/INTERMEDIATE/$(INTERMEDIATE)/g" $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	chmod 755 $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+
+$(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
+	sed -e "s/CA_FILE/$(CA)/g" < uninstall-cert-ca-browser.template > $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	$(eval NAME := $(shell openssl x509 -in $(CA_PEM) -text | grep -e "CN =" | head -1 | sed -e 's/.*CN = //' ))
+	sed -i "s/NAME/$(NAME)/g" $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	$(eval INTERMEDIATE := $(shell openssl x509 -in $(INTERMEDIATE_CA_PEM) -text | grep -e "CN =" | head -1 | sed -e 's/.*CN = //' ))
+	sed -i "s/INTERMEDIATE/$(INTERMEDIATE)/g" $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	chmod 755 $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 
 $(HOST_JSON): host.json.template
 	sed -e "s/FQDN/$(FQDN_RAW)/g" < host.json.template > $(HOST_JSON)

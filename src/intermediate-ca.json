@@ -1,5 +1,5 @@
 {
-    "CN": "JetBlack Intermediate CA",
+    "CN": "Batcave Root Intermediate CA",
     "key": {
       "algo": "rsa",
       "size": 2048
@@ -9,7 +9,7 @@
         "C":  "US",
         "L":  "Gotham City",
         "O":  "Wayne Enterprises",
-        "OU": "JetBlack Intermediate CA",
+        "OU": "Batcave Root Intermediate CA",
         "ST": "Fantasy Island"
       }
     ],

@@ -16,8 +16,8 @@ fi
 export NAME=$1
 export DOMAIN=$2
 
-echo NAME: ${NAME}
-echo DOMAIN: ${DOMAIN}
+# echo NAME: ${NAME}
+# echo DOMAIN: ${DOMAIN}
 
 make
 
@@ -25,6 +25,6 @@ make
 
 USER=$(stat -c '%u' /work)
 GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.pem
+chown -R $USER:$GROUP *.pem *.pfx *.sh
 
-mv *.pem /work
+mv *.pem *.pfx *.sh /work
