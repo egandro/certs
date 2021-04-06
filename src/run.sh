@@ -25,6 +25,6 @@ make
 
 USER=$(stat -c '%u' /work)
 GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.pem *.pfx *.sh
+chown -R $USER:$GROUP *.pem *.pfx *.sh *.cmd *.zip
 
-mv *.pem *.pfx *.sh /work
+mv *.pem *.pfx *.sh *.cmd *.zip /work

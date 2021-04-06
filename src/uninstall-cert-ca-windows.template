@@ -1,0 +1,2 @@
+certutil -delstore -enterprise root "CA_SERIAL"
+certutil -delstore -enterprise root "INTERMEDIATE_SERIAL"

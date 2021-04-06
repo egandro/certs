@@ -5,9 +5,9 @@ FROM golang:latest
 RUN go get github.com/cloudflare/cfssl/cmd/cfssl \
     && go get github.com/cloudflare/cfssl/cmd/cfssljson
 
-#RUN apt-get update \
-#    && apt-get install -y -qqq whatever \
-#    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+   && apt-get install -y -qqq zip \
+   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 COPY src .
