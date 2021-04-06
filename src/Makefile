@@ -11,7 +11,6 @@ HOST_JSON=$(HOSTNAME).json
 
 CA=$(PREFIX)-ca
 CA_PEM=$(CA).pem
-CA_PFX=$(CA).pfx
 CA_CRT=$(CA).crt
 CA_CSR=$(CA).csr
 CA_KEY_PEM=$(CA)-key.pem
@@ -19,7 +18,6 @@ CA_KEY=$(CA).key
 
 INTERMEDIATE_CA=$(PREFIX)-intermediate-ca
 INTERMEDIATE_CA_PEM=$(INTERMEDIATE_CA).pem
-INTERMEDIATE_CA_PFX=$(INTERMEDIATE_CA).pfx
 INTERMEDIATE_CA_CRT=$(INTERMEDIATE_CA).crt
 INTERMEDIATE_CA_CSR=$(INTERMEDIATE_CA).csr
 INTERMEDIATE_CA_KEY_PEM=$(INTERMEDIATE_CA)-key.pem
@@ -72,24 +70,18 @@ install-files: $(INSTALL_CA_AND_INTERMEDIATE_CA) $(UNINSTALL_CA_AND_INTERMEDIATE
 
 .PHONY: ca intermediate-ca $(HOSTNAME)
 
-ca: $(CA_PEM) $(CA_PFX)
-intermediate-ca: $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) $(INTERMEDIATE_CA_PFX)
+ca: $(CA_PEM)
+intermediate-ca: $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM)
 $(HOSTNAME): $(HOST_SERVER_PEM) $(HOST_PEER_PEM) $(HOST_CLIENT_PEM) $(HOST_HAPROXY_PEM)
 
 $(CA_PEM): ca.json
 	cfssl gencert -initca ca.json | cfssljson -bare $(CA)
-
-$(CA_PFX): $(CA_PEM)
-	openssl pkcs12 -export -nokeys -in $(CA_PEM) -out $(CA_PFX) -passout pass:
 
 $(INTERMEDIATE_CA_PEM): intermediate-ca.json
 	cfssl gencert -initca intermediate-ca.json | cfssljson -bare $(INTERMEDIATE_CA)
 
 $(INTERMEDIATE_CA_KEY_PEM): $(INTERMEDIATE_CA_PEM) $(CA_PEM) cfssl.json $(INTERMEDIATE_CA_CSR)
 	cfssl sign -ca $(CA_PEM) -ca-key $(CA_KEY_PEM) -config cfssl.json -profile intermediate-ca $(INTERMEDIATE_CA_CSR) | cfssljson -bare $(INTERMEDIATE_CA)
-
-$(INTERMEDIATE_CA_PFX): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM)
-	openssl pkcs12 -export -nokeys -in $(INTERMEDIATE_CA_PEM) -out $(INTERMEDIATE_CA_PFX) -passout pass:
 
 $(INSTALL_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
 	sed -e "s/CA_FILE/$(CA)/g" < install-cert-ca.template > $(INSTALL_CA_AND_INTERMEDIATE_CA)
