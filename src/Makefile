@@ -1,4 +1,4 @@
-HOSTNAME=$(shell echo ${NAME} | sed -e 's/\*/star/g')
+HOSTNAME=$(shell echo ${NAME} | sed -e 's/\*/_asterix_/g')
 FQDN=${HOSTNAME}.${DOMAIN}
 FQDN_RAW=${NAME}.${DOMAIN}
 PREFIX=$(shell echo ${DOMAIN} | sed -e 's/\./-/g')
