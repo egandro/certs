@@ -1,0 +1,20 @@
+{
+    "CN": "FQDN",
+    "key": {
+      "algo": "rsa",
+      "size": 2048
+    },
+    "names": [
+    {
+      "C": "US",
+      "L": "Gotham City",
+      "O": "Wayne Enterprises",
+      "OU": "JetBlack Hosts",
+      "ST": "Fantasy Island"
+    }
+    ],
+    "hosts": [
+      "FQDN",
+      "localhost"
+    ]
+  }

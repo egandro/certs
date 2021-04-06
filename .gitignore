@@ -1,0 +1,5 @@
+task-api
+src/vendor
+**.csr
+**.pem
+certs

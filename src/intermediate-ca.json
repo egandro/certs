@@ -1,0 +1,19 @@
+{
+    "CN": "JetBlack Intermediate CA",
+    "key": {
+      "algo": "rsa",
+      "size": 2048
+    },
+    "names": [
+      {
+        "C":  "US",
+        "L":  "Gotham City",
+        "O":  "Wayne Enterprises",
+        "OU": "JetBlack Intermediate CA",
+        "ST": "Fantasy Island"
+      }
+    ],
+    "ca": {
+      "expiry": "43800h"
+    }
+  }
