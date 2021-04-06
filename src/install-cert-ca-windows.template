@@ -1,2 +1,2 @@
-certutil -importpfx root CA_FILE
-certutil -importpfx root INTERMEDIATE_FILE
+certutil.exe -addstore "Root" CA_FILE
+certutil.exe -addstore "Root" INTERMEDIATE_FILE
