@@ -21,8 +21,10 @@ echo DOMAIN: ${DOMAIN}
 
 make
 
+# don't care about *.csr files
+
 USER=$(stat -c '%u' /work)
 GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.csr *.pem
+chown -R $USER:$GROUP *.pem
 
-mv *.csr *.pem /work
+mv *.pem /work
