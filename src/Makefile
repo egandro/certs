@@ -1,4 +1,4 @@
-HOSTNAME=$(shell echo ${SERVERNAME} | sed -e 's/\*/_star_/g')
+HOSTNAME=$(shell echo ${SERVERNAME} | sed -e 's/\*/wildcard/g')
 FQDN=${HOSTNAME}.${DOMAIN}
 FQDN_RAW=${SERVERNAME}.${DOMAIN}
 PREFIX=$(shell echo ${DOMAIN} | sed -e 's/\./-/g')
@@ -36,7 +36,8 @@ HOST_SERVER_KEY=$(HOST_SERVER).key
 
 HOST_HAPROXY_PEM=$(PREFIX)-$(HOSTNAME)-haproxy.pem
 
-NFPM_YML=nfpm-$(CA).yml
+NFPM_CA_YML=nfpm-$(CA).yml
+NFPM_HOST_SERVER_YML=nfpm-$(HOST_SERVER).yml
 
 .PHONY: all
 
@@ -48,9 +49,9 @@ all: check ca $(HOSTNAME)
 check:
 	test -n "$(FQDN)"
 
-.PHONY: ca $(HOSTNAME) $(WINDOWS_CA_ZIP) $(NFPM_YML)
+.PHONY: ca $(HOSTNAME) $(WINDOWS_CA_ZIP) $(NFPM_CA_YML) $(NFPM_HOST_SERVER_YML)
 
-ca: $(CA_PEM) $(WINDOWS_CA_ZIP) $(NFPM_YML)
+ca: $(CA_PEM) $(WINDOWS_CA_ZIP) $(NFPM_CA_YML) $(NFPM_HOST_SERVER_YML)
 
 $(HOSTNAME): $(HOST_SERVER_PEM) #$(HOST_HAPROXY_PEM)
 
@@ -96,19 +97,26 @@ $(WINDOWS_CA_ZIP): $(CA_PEM) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA)
 	rm $(INSTALL_WINDOWS_CA)
 	rm $(UNINSTALL_WINDOWS_CA)
 
-$(NFPM_YML): $(CA_PEM) $(INSTALL_CA) $(UNINSTALL_CA) $(INSTALL_BROWSER_CA) $(UNINSTALL_BROWSER_CA)
-	sed -e "s/PACKAGENAME/$(CA)/g" < $(BASEDIR)nfpm.yaml.template > $(NFPM_YML)
-	sed -i "s/CA_FILE/$(CA)/g" $(NFPM_YML)
-	sed -i "s/POSTINSTALL/$(INSTALL_CA)/g" $(NFPM_YML)
-	sed -i "s/POSTREMOVE/$(UNINSTALL_CA)/g" $(NFPM_YML)
-	sed -i "s/INSTALL_BROWSER_CA/$(INSTALL_BROWSER_CA)/g" $(NFPM_YML)
-	sed -i "s/REMOVE_WINDOWS_CA/$(UNINSTALL_BROWSER_CA)/g" $(NFPM_YML)
-	sed -i "s/TIMESTAMP/$(NOW)/g" $(NFPM_YML)
-	nfpm -f $(NFPM_YML) pkg --packager deb --target ./
+$(NFPM_CA_YML): $(CA_PEM) $(INSTALL_CA) $(UNINSTALL_CA) $(INSTALL_BROWSER_CA) $(UNINSTALL_BROWSER_CA)
+	sed -e "s/PACKAGENAME/$(CA)/g" < $(BASEDIR)nfpm.yaml.ca.template > $(NFPM_CA_YML)
+	sed -i "s/CA_FILE/$(CA)/g" $(NFPM_CA_YML)
+	sed -i "s/POSTINSTALL/$(INSTALL_CA)/g" $(NFPM_CA_YML)
+	sed -i "s/POSTREMOVE/$(UNINSTALL_CA)/g" $(NFPM_CA_YML)
+	sed -i "s/INSTALL_BROWSER_CA/$(INSTALL_BROWSER_CA)/g" $(NFPM_CA_YML)
+	sed -i "s/REMOVE_WINDOWS_CA/$(UNINSTALL_BROWSER_CA)/g" $(NFPM_CA_YML)
+	sed -i "s/TIMESTAMP/$(NOW)/g" $(NFPM_CA_YML)
+	nfpm -f $(NFPM_CA_YML) pkg --packager deb --target ./
 	rm $(INSTALL_CA)
 	rm $(UNINSTALL_CA)
 	rm $(INSTALL_BROWSER_CA)
 	rm $(UNINSTALL_BROWSER_CA)
+
+$(NFPM_HOST_SERVER_YML): $(HOST_SERVER_PEM) $(HOST_SERVER_KEY_PEM)
+	sed -e "s/PACKAGENAME/$(HOST_SERVER)/g" < $(BASEDIR)nfpm.yaml.ca.server.template > $(NFPM_HOST_SERVER_YML)
+	sed -i "s/HOST_SERVER/$(HOST_SERVER)/g" $(NFPM_HOST_SERVER_YML)
+	sed -i "s/TIMESTAMP/$(NOW)/g" $(NFPM_HOST_SERVER_YML)
+	sed -i "s/FQDN/$(FQDN)/g" $(NFPM_HOST_SERVER_YML)
+	nfpm -f $(NFPM_HOST_SERVER_YML) pkg --packager deb --target ./
 
 .PHONY: $(HOST_SERVER_PEM)
 $(HOST_SERVER_PEM): $(CA_PEM) $(CA_KEY_PEM) $(BASEDIR)cfssl.json $(HOST_JSON)

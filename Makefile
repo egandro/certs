@@ -13,8 +13,8 @@ default-domain: build
 	docker run -it --name $(SERVICE) -v $$(pwd)/certs:/work  $(SERVICE):latest run raspberrypi $(DEFAULT_DOMAIN)
 	@docker rm -f  $(SERVICE) 2>/dev/null || echo ""
 	docker run -it --name $(SERVICE) -v $$(pwd)/certs:/work  $(SERVICE):latest run "\*" $(DEFAULT_DOMAIN)
-	cp ./certs/my-localnet-_star_-server.pem ./test/etc/server.crt
-	cp ./certs/my-localnet-_star_-server-key.pem ./test/etc/server.key
+	cp ./certs/my-localnet-wildcard-server.pem ./test/etc/server.crt
+	cp ./certs/my-localnet-wildcard-server-key.pem ./test/etc/server.key
 	tar czf certificates-$(DEFAULT_DOMAIN).tgz certs
 
 clean:
