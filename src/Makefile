@@ -21,8 +21,8 @@ CA_KEY=$(CA).key
 
 INSTALL_CA=install-root-$(CA).sh
 UNINSTALL_CA=uninstall-root-$(CA).sh
-INSTALL_BROWSER_CA=install-browser-$(CA).sh
-UNINSTALL_BROWSER_CA=uninstall-browser-$(CA).sh
+INSTALL_BROWSER_CA=install-browser-certificate-$(CA)
+UNINSTALL_BROWSER_CA=uninstall-browser-certificate-$(CA)
 INSTALL_WINDOWS_CA=install-windows-$(CA).cmd
 UNINSTALL_WINDOWS_CA=uninstall-windows-$(CA).cmd
 WINDOWS_CA_ZIP=$(CA)-windows.zip
