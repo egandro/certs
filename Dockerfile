@@ -6,7 +6,7 @@ RUN go get github.com/cloudflare/cfssl/cmd/cfssl \
     && go get github.com/cloudflare/cfssl/cmd/cfssljson
 
 RUN apt-get update \
-   && apt-get install -y -qqq zip \
+   && apt-get install -y -qqq zip wixl \
    && curl -sfL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh \
    && rm -rf /var/lib/apt/lists/*
 
