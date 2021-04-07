@@ -1,2 +1,2 @@
 certutil -delstore -enterprise root "CA_SERIAL"
-certutil -delstore -enterprise root "INTERMEDIATE_SERIAL"
+certutil -delstore -enterprise CA "INTERMEDIATE_SERIAL"

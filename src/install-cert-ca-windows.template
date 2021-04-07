@@ -1,2 +1,2 @@
 certutil.exe -addstore "Root" CA_FILE
-certutil.exe -addstore "Root" INTERMEDIATE_FILE
+certutil.exe -addstore "CA" INTERMEDIATE_FILE
