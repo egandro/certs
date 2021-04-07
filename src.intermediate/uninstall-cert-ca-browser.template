@@ -6,3 +6,4 @@ if ! [ -x "$(command -v certutil)" ]; then
 fi
 
 certutil -D -n "NAME" -d sql:$HOME/.pki/nssdb
+certutil -D -n "INTERMEDIATE" -d sql:$HOME/.pki/nssdb

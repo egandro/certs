@@ -1,2 +1,1 @@
 certutil -delstore root "CA_SERIAL"
-certutil -delstore CA "INTERMEDIATE_SERIAL"

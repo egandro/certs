@@ -1,0 +1,19 @@
+{
+    "CN": "Batcave Root Intermediate CA",
+    "key": {
+      "algo": "rsa",
+      "size": 2048
+    },
+    "names": [
+      {
+        "C":  "US",
+        "L":  "Gotham City",
+        "O":  "Wayne Enterprises",
+        "OU": "Batcave Root Intermediate CA",
+        "ST": "Comic Book Shop"
+      }
+    ],
+    "ca": {
+      "expiry": "43800h"
+    }
+  }

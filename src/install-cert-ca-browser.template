@@ -6,4 +6,3 @@ if ! [ -x "$(command -v certutil)" ]; then
 fi
 
 certutil -A -n "NAME" -t "TCu,Cu,Tu" -i /usr/local/share/ca-certificates/CA_FILE.crt -d sql:$HOME/.pki/nssdb
-certutil -A -n "INTERMEDIATE" -t "TCu,Cu,Tu" -i /usr/local/share/ca-certificates/INTERMEDIATE_FILE.crt -d sql:$HOME/.pki/nssdb
