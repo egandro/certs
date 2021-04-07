@@ -1,4 +1,0 @@
-#!/bin/bash
-sudo cp CA_FILE.pem /usr/local/share/ca-certificates/CA_FILE.crt
-sudo cp INTERMEDIATE_FILE.pem /usr/local/share/ca-certificates/INTERMEDIATE_FILE.crt
-sudo update-ca-certificates --fresh

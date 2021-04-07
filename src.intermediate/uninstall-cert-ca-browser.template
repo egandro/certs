@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if ! [ -x "$(command -v certutil)" ]; then
-  echo 'error: certutil is not installed. $ sudo apt-get install libnss3-tools' >&2
-  exit 1
-fi
-
-certutil -D -n "NAME" -d sql:$HOME/.pki/nssdb
-certutil -D -n "INTERMEDIATE" -d sql:$HOME/.pki/nssdb
