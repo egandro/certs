@@ -13,10 +13,10 @@ if [[ ! $# -eq 2 ]] ; then
     exit 1
 fi
 
-export NAME=$1
+export SERVERNAME=$1
 export DOMAIN=$2
 
-# echo NAME: ${NAME}
+# echo SERVERNAME: ${SERVERNAME}
 # echo DOMAIN: ${DOMAIN}
 
 cd /work
@@ -24,5 +24,5 @@ make -f /src/Makefile
 
 USER=$(stat -c '%u' /work)
 GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.pem *.csr *.sh *.cmd *.zip *.deb
+chown -R $USER:$GROUP *.pem *.zip *.deb
 

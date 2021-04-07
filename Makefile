@@ -12,8 +12,8 @@ default-domain: build
 	docker run -it --name $(SERVICE) -v $$(pwd)/certs:/work  $(SERVICE):latest run raspberrypi my.localnet
 	@docker rm -f  $(SERVICE) 2>/dev/null || echo ""
 	docker run -it --name $(SERVICE) -v $$(pwd)/certs:/work  $(SERVICE):latest run "\*" my.localnet
-	cp ./certs/my-localnet-_asterix_-server.pem ./test/etc/server.crt
-	cp ./certs/my-localnet-_asterix_-server-key.pem ./test/etc/server.key
+	cp ./certs/my-localnet-_star_-server.pem ./test/etc/server.crt
+	cp ./certs/my-localnet-_star_-server-key.pem ./test/etc/server.key
 
 clean:
 	rm -rf certs

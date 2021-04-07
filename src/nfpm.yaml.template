@@ -1,5 +1,5 @@
 # Name. (required)
-name: PACKAGENAME-root-ca
+name: PACKAGENAME
 
 # Architecture. (required)
 arch: all
