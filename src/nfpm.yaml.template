@@ -88,7 +88,6 @@ contents:
   # Basic file that applies to all packagers
   - src: ./CA_FILE.pem
     dst: /usr/local/share/ca-certificates/CA_FILE.crt
-    type: config # that won't delete the ca-certificates on package removal
 
   # # Simple config file
   # - src: path/to/local/foo.conf

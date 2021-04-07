@@ -1,4 +1,4 @@
 #!/bin/bash
-# we delete the certificate in post script to keep the directory
-rm -f /usr/local/share/ca-certificates/CA_FILE.crt
+# nfpm might kill this..
+mkdir -p /usr/local/share/ca-certificates
 update-ca-certificates
