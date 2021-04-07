@@ -1,3 +1,4 @@
 #!/bin/bash
-sudo rm -f /usr/local/share/ca-certificates/CA_FILE.crt
-sudo update-ca-certificates --fresh
+# we delete the certificate in post script to keep the directory
+rm -f /usr/local/share/ca-certificates/CA_FILE.crt
+update-ca-certificates

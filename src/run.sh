@@ -24,5 +24,5 @@ make -f /src/Makefile
 
 USER=$(stat -c '%u' /work)
 GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.pem *.csr *.sh *.cmd *.zip
+chown -R $USER:$GROUP *.pem *.csr *.sh *.cmd *.zip *.deb
 

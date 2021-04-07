@@ -4,6 +4,8 @@ FQDN_RAW=${NAME}.${DOMAIN}
 PREFIX=$(shell echo ${DOMAIN} | sed -e 's/\./-/g')
 BASEDIR := $(or ${BASEDIR},${BASEDIR},./)
 
+NOW=$(shell date +%Y%m%d%H%M)
+
 LOCAL_FOLDER=$(HOME)/.keys
 SYSTEM_CERT_FOLDER=/usr/share/ca-certificates/$(FQDN)
 SYSTEM_KEY_FOLDER=/etc/ssl/private
@@ -23,7 +25,7 @@ INSTALL_BROWSER_CA=install-browser-$(CA).sh
 UNINSTALL_BROWSER_CA=uninstall-browser-$(CA).sh
 INSTALL_WINDOWS_CA=install-windows-$(CA).cmd
 UNINSTALL_WINDOWS_CA=uninstall-windows-$(CA).cmd
-WINDOWS_CA=$(CA)-windows.zip
+WINDOWS_CA_ZIP=$(CA)-windows.zip
 
 HOST_SERVER=$(PREFIX)-$(HOSTNAME)-server
 HOST_SERVER_PEM=$(HOST_SERVER).pem
@@ -48,6 +50,8 @@ HOST_CLIENT_KEY=$(HOST_CLIENT).key
 
 HOST_HAPROXY_PEM=$(PREFIX)-$(HOSTNAME)-haproxy.pem
 
+NFPM_YML=nfpm-$(CA).yml
+
 .PHONY: all
 
 all: check ca $(HOSTNAME) install-files
@@ -60,7 +64,7 @@ check:
 
 .PHONY: install-files
 
-install-files: $(INSTALL_CA) $(UNINSTALL_CA) $(INSTALL_BROWSER_CA) $(UNINSTALL_BROWSER_CA) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA) $(WINDOWS_CA)
+install-files: $(INSTALL_CA) $(UNINSTALL_CA) $(INSTALL_BROWSER_CA) $(UNINSTALL_BROWSER_CA) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA) $(WINDOWS_CA_ZIP) $(NFPM_YML)
 
 .PHONY: ca $(HOSTNAME)
 
@@ -100,11 +104,21 @@ $(UNINSTALL_WINDOWS_CA): $(CA_PEM)
 	sed -i "s/CA_SERIAL/$(CA_SERIAL)/g" $(UNINSTALL_WINDOWS_CA)
 	sed -i 's/$$/\r/' $(UNINSTALL_WINDOWS_CA)
 
-$(WINDOWS_CA): $(CA_PEM) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA)
-	zip $(WINDOWS_CA) $(CA_PEM) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA)
+$(WINDOWS_CA_ZIP): $(CA_PEM) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA)
+	zip $(WINDOWS_CA_ZIP) $(CA_PEM) $(INSTALL_WINDOWS_CA) $(UNINSTALL_WINDOWS_CA)
 
 $(HOST_JSON): $(BASEDIR)host.json.template
 	sed -e "s/FQDN/$(FQDN_RAW)/g" < $(BASEDIR)host.json.template > $(HOST_JSON)
+
+$(NFPM_YML): $(CA_PEM)
+	sed -e "s/PACKAGENAME/$(PREFIX)/g" < $(BASEDIR)nfpm.yaml.template > $(NFPM_YML)
+	sed -i "s/CA_FILE/$(CA)/g" $(NFPM_YML)
+	sed -i "s/POSTINSTALL/$(INSTALL_CA)/g" $(NFPM_YML)
+	sed -i "s/POSTREMOVE/$(UNINSTALL_CA)/g" $(NFPM_YML)
+	sed -i "s/INSTALL_BROWSER_CA/$(INSTALL_BROWSER_CA)/g" $(NFPM_YML)
+	sed -i "s/REMOVE_WINDOWS_CA/$(UNINSTALL_BROWSER_CA)/g" $(NFPM_YML)
+	sed -i "s/TIMESTAMP/$(NOW)/g" $(NFPM_YML)
+	nfpm -f $(NFPM_YML) pkg --packager deb --target ./
 
 .PHONY: $(HOST_SERVER_PEM)
 $(HOST_SERVER_PEM): $(CA_PEM) $(CA_KEY_PEM) $(BASEDIR)cfssl.json $(HOST_JSON)
