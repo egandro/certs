@@ -19,12 +19,10 @@ export DOMAIN=$2
 # echo NAME: ${NAME}
 # echo DOMAIN: ${DOMAIN}
 
-make
-
-# don't care about *.csr files
+cd /work
+make -f /src/Makefile
 
 USER=$(stat -c '%u' /work)
 GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.pem *.sh *.cmd *.zip
+chown -R $USER:$GROUP *.pem *.csr *.sh *.cmd *.zip
 
-mv *.pem *.sh *.cmd *.zip /work

@@ -2,6 +2,7 @@ HOSTNAME=$(shell echo ${NAME} | sed -e 's/\*/_asterix_/g')
 FQDN=${HOSTNAME}.${DOMAIN}
 FQDN_RAW=${NAME}.${DOMAIN}
 PREFIX=$(shell echo ${DOMAIN} | sed -e 's/\./-/g')
+BASEDIR := $(or ${BASEDIR},${BASEDIR},./)
 
 LOCAL_FOLDER=$(HOME)/.keys
 SYSTEM_CERT_FOLDER=/usr/share/ca-certificates/$(FQDN)
@@ -74,27 +75,27 @@ ca: $(CA_PEM)
 intermediate-ca: $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM)
 $(HOSTNAME): $(HOST_SERVER_PEM) $(HOST_PEER_PEM) $(HOST_CLIENT_PEM) $(HOST_HAPROXY_PEM)
 
-$(CA_PEM): ca.json
-	cfssl gencert -initca ca.json | cfssljson -bare $(CA)
+$(CA_PEM): $(BASEDIR)ca.json
+	cfssl gencert -initca $(BASEDIR)ca.json | cfssljson -bare $(CA)
 
-$(INTERMEDIATE_CA_PEM): intermediate-ca.json
-	cfssl gencert -initca intermediate-ca.json | cfssljson -bare $(INTERMEDIATE_CA)
+$(INTERMEDIATE_CA_PEM): $(BASEDIR)intermediate-ca.json
+	cfssl gencert -initca $(BASEDIR)intermediate-ca.json | cfssljson -bare $(INTERMEDIATE_CA)
 
-$(INTERMEDIATE_CA_KEY_PEM): $(INTERMEDIATE_CA_PEM) $(CA_PEM) cfssl.json $(INTERMEDIATE_CA_CSR)
-	cfssl sign -ca $(CA_PEM) -ca-key $(CA_KEY_PEM) -config cfssl.json -profile intermediate-ca $(INTERMEDIATE_CA_CSR) | cfssljson -bare $(INTERMEDIATE_CA)
+$(INTERMEDIATE_CA_KEY_PEM): $(INTERMEDIATE_CA_PEM) $(CA_PEM) $(BASEDIR)cfssl.json $(INTERMEDIATE_CA_CSR)
+	cfssl sign -ca $(CA_PEM) -ca-key $(CA_KEY_PEM) -config $(BASEDIR)cfssl.json -profile intermediate-ca $(INTERMEDIATE_CA_CSR) | cfssljson -bare $(INTERMEDIATE_CA)
 
 $(INSTALL_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
-	sed -e "s/CA_FILE/$(CA)/g" < install-cert-ca.template > $(INSTALL_CA_AND_INTERMEDIATE_CA)
+	sed -e "s/CA_FILE/$(CA)/g" < $(BASEDIR)install-cert-ca.template > $(INSTALL_CA_AND_INTERMEDIATE_CA)
 	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(INSTALL_CA_AND_INTERMEDIATE_CA)
 	chmod 755 $(INSTALL_CA_AND_INTERMEDIATE_CA)
 
 $(UNINSTALL_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
-	sed -e "s/CA_FILE/$(CA)/g" < uninstall-cert-ca.template > $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
+	sed -e "s/CA_FILE/$(CA)/g" < $(BASEDIR)uninstall-cert-ca.template > $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
 	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
 	chmod 755 $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
 
 $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
-	sed -e "s/CA_FILE/$(CA)/g" < install-cert-ca-browser.template > $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	sed -e "s/CA_FILE/$(CA)/g" < $(BASEDIR)install-cert-ca-browser.template > $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 	$(eval NAME := $(shell openssl x509 -in $(CA_PEM) -text | grep -e "CN =" | head -1 | sed -e 's/.*CN = //' ))
 	sed -i "s/NAME/$(NAME)/g" $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
@@ -103,7 +104,7 @@ $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
 	chmod 755 $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 
 $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
-	sed -e "s/CA_FILE/$(CA)/g" < uninstall-cert-ca-browser.template > $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	sed -e "s/CA_FILE/$(CA)/g" < $(BASEDIR)uninstall-cert-ca-browser.template > $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA)/g" $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 	$(eval NAME := $(shell openssl x509 -in $(CA_PEM) -text | grep -e "CN =" | head -1 | sed -e 's/.*CN = //' ))
 	sed -i "s/NAME/$(NAME)/g" $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
@@ -112,12 +113,12 @@ $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
 	chmod 755 $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
 
 $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
-	sed -e "s/CA_FILE/$(CA_PEM)/g" < install-cert-ca-windows.template > $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
+	sed -e "s/CA_FILE/$(CA_PEM)/g" < $(BASEDIR)install-cert-ca-windows.template > $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA_PEM)/g" $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 	sed 's/$$/\r/' -i $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 
 $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
-	sed -e "s/CA_FILE/$(CA_PEM)/g" < uninstall-cert-ca-windows.template > $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
+	sed -e "s/CA_FILE/$(CA_PEM)/g" < $(BASEDIR)uninstall-cert-ca-windows.template > $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 	sed -i "s/INTERMEDIATE_FILE/$(INTERMEDIATE_CA_PEM)/g" $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 	$(eval CA_SERIAL := $(shell openssl x509 -noout -serial -in $(CA_PEM) | cut -d'=' -f2 | sed 's/../&:/g;s/:$$//' | sed -e 's/:/ /g'))
 	sed -i "s/CA_SERIAL/$(CA_SERIAL)/g" $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
@@ -128,20 +129,20 @@ $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM)
 $(WINDOWS_CA_AND_INTERMEDIATE_CA): $(CA_PEM) $(INTERMEDIATE_CA_PEM) $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA) $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 	zip $(WINDOWS_CA_AND_INTERMEDIATE_CA) $(CA_PEM) $(INTERMEDIATE_CA_PEM) $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA) $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
 
-$(HOST_JSON): host.json.template
-	sed -e "s/FQDN/$(FQDN_RAW)/g" < host.json.template > $(HOST_JSON)
+$(HOST_JSON): $(BASEDIR)host.json.template
+	sed -e "s/FQDN/$(FQDN_RAW)/g" < $(BASEDIR)host.json.template > $(HOST_JSON)
 
 .PHONY: $(HOST_SERVER_PEM)
-$(HOST_SERVER_PEM): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) cfssl.json $(HOST_JSON)
-	cfssl gencert -ca $(INTERMEDIATE_CA_PEM) -ca-key $(INTERMEDIATE_CA_KEY_PEM) -config cfssl.json -profile=server $(HOST_JSON) | cfssljson -bare $(HOST_SERVER)
+$(HOST_SERVER_PEM): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) $(BASEDIR)cfssl.json $(HOST_JSON)
+	cfssl gencert -ca $(INTERMEDIATE_CA_PEM) -ca-key $(INTERMEDIATE_CA_KEY_PEM) -config $(BASEDIR)cfssl.json -profile=server $(HOST_JSON) | cfssljson -bare $(HOST_SERVER)
 
 .PHONY: $(HOST_PEER_PEM)
-$(HOST_PEER_PEM): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) cfssl.json $(HOST_JSON)
-	cfssl gencert -ca $(INTERMEDIATE_CA_PEM) -ca-key $(INTERMEDIATE_CA_KEY_PEM) -config cfssl.json -profile=peer $(HOST_JSON) | cfssljson -bare $(HOST_PEER)
+$(HOST_PEER_PEM): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) $(BASEDIR)cfssl.json $(HOST_JSON)
+	cfssl gencert -ca $(INTERMEDIATE_CA_PEM) -ca-key $(INTERMEDIATE_CA_KEY_PEM) -config $(BASEDIR)cfssl.json -profile=peer $(HOST_JSON) | cfssljson -bare $(HOST_PEER)
 
 .PHONY: $(HOST_CLIENT_PEM)
-$(HOST_CLIENT_PEM): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) cfssl.json $(HOST_JSON)
-	cfssl gencert -ca $(INTERMEDIATE_CA_PEM) -ca-key $(INTERMEDIATE_CA_KEY_PEM) -config cfssl.json -profile=client $(HOST_JSON) | cfssljson -bare $(HOST_CLIENT)
+$(HOST_CLIENT_PEM): $(INTERMEDIATE_CA_PEM) $(INTERMEDIATE_CA_KEY_PEM) $(BASEDIR)cfssl.json $(HOST_JSON)
+	cfssl gencert -ca $(INTERMEDIATE_CA_PEM) -ca-key $(INTERMEDIATE_CA_KEY_PEM) -config $(BASEDIR)cfssl.json -profile=client $(HOST_JSON) | cfssljson -bare $(HOST_CLIENT)
 
 .PHONY: $(HOST_HAPROXY_PEM)
 $(HOST_HAPROXY_PEM): $(CA_PEM) $(INTERMEDIATE_CA_PEM) $(HOST_SERVER_PEM) $(HOST_SERVER_KEY_PEM)
@@ -226,3 +227,10 @@ clean:
 	rm -f $(HOST_CLIENT_CSR)
 	rm -f $(HOST_HAPROXY_PEM)
 	rm -f $(HOST_JSON)
+	rm -f $(INSTALL_CA_AND_INTERMEDIATE_CA)
+	rm -f $(UNINSTALL_CA_AND_INTERMEDIATE_CA)
+	rm -f $(INSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	rm -f $(UNINSTALL_BROWSER_CA_AND_INTERMEDIATE_CA)
+	rm -f $(INSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
+	rm -f $(UNINSTALL_WINDOWS_CA_AND_INTERMEDIATE_CA)
+	rm -f $(WINDOWS_CA_AND_INTERMEDIATE_CA)

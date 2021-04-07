@@ -13,6 +13,8 @@ RUN apt-get update \
 WORKDIR /src
 COPY src .
 
+ENV BASEDIR=/src/
+
 RUN chmod 755 run.sh \
     && mv run.sh /usr/local/bin/run
 

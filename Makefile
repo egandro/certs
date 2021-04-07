@@ -16,5 +16,5 @@ default-domain: build
 	cp ./certs/localnet-raspberrypi-server-key.pem ./test/etc/server.key
 
 clean:
-	rm -f certs
+	rm -rf certs
 	docker rmi -f $(SERVICE)
