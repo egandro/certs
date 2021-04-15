@@ -15,6 +15,7 @@
 
   - Win+R
   - certmgr.msc
+  - idea how to create a msi file via Docker <https://github.com/dactivllc/docker-wix>
 
 ## simple approach
 
