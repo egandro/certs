@@ -2,11 +2,12 @@ FROM golang:latest
 
 # cloudflare cfssl tool
 # https://github.com/cloudflare/cfssl
-RUN go get github.com/cloudflare/cfssl/cmd/cfssl \
-    && go get github.com/cloudflare/cfssl/cmd/cfssljson
+RUN go install github.com/cloudflare/cfssl/cmd/cfssl@latest \
+    && go install github.com/cloudflare/cfssl/cmd/cfssljson@latest 
 
-RUN apt-get update \
-   && apt-get install -y -qqq zip \
+RUN echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list \
+   && apt-get update \
+   && apt-get install -y -qqq nfpm zip \
    && curl -sfL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh \
    && rm -rf /var/lib/apt/lists/*
 
