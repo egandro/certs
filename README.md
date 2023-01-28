@@ -19,6 +19,7 @@
 
 ## Linux Installation
   - https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md
+  - https://serverfault.com/questions/414578/certutil-function-failed-security-library-bad-database
 
 ## simple approach
 

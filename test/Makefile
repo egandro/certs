@@ -7,6 +7,8 @@ build:
 
 run: build
 	@docker rm -f  $(SERVICE) 2>/dev/null || echo ""
+	@echo "update your /etc/hosts file!"
+	@echo "browse to: https://raspberrypi.my.localnet"
 	docker run --name $(SERVICE) -p 8443:443  $(SERVICE):latest
 
 clean:
