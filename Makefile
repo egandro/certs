@@ -21,12 +21,13 @@ default-domain: build
 	tar czf certificates-$(DEFAULT_DOMAIN).tgz certs
 
 #sudo apt install libnss3-tools
-default-install-chrome:
-    #chmod 700 $$HOME.pki/nssdb
-	certutil -d sql:$$HOME/.pki/nssdb -L -n $(DEFAULT_CHROME_NAME) || true
-	certutil -d sql:$$HOME/.pki/nssdb -D -n $(DEFAULT_CHROME_NAME) || true
+default-install-chrome: default-uninstall-chrome
 	certutil -d sql:$$HOME/.pki/nssdb -A -t "C,," -n $(DEFAULT_CHROME_NAME) -i ./certs/$$(echo $(DEFAULT_DOMAIN) | sed -e 's/\./-/g')-ca.pem
 
+default-uninstall-chrome:
+	certutil -d sql:$$HOME/.pki/nssdb -L -n $(DEFAULT_CHROME_NAME) || true
+	certutil -d sql:$$HOME/.pki/nssdb -D -n $(DEFAULT_CHROME_NAME) || true
+
 clean:
-	rm -rf certs
+	rm -rf certs *.tgz
 	docker rmi -f $(SERVICE)
