@@ -15,7 +15,14 @@
 
   - Win+R
   - certmgr.msc
-  - idea how to create a msi file via Docker <https://github.com/dactivllc/docker-wix>
+  - idea how to create a msi file via Docker <https://github.com/dactivllc/docker-wix>, <https://stackoverflow.com/questions/13478297/silently-install-root-certificate-in-wix>
+  - Windows CLI: https://superuser.com/questions/1506440/import-certificates-using-command-line-on-windows
+  - <https://stackoverflow.com/questions/23869177/import-certificate-to-trusted-root-but-not-to-personal-command-line>
+  - Windows
+      - To add, use the command: 
+      - `certutil -addstore -f "ROOT" new-root-certificate.crt`
+      - To remove, use the command:
+      - `certutil -delstore "ROOT" serial-number-hex`
 
 ## Linux Installation
   - https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md
