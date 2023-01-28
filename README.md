@@ -16,6 +16,7 @@
   - Win+R
   - certmgr.msc
   - idea how to create a msi file via Docker <https://github.com/dactivllc/docker-wix>
+  - Windows CLI: https://superuser.com/questions/1506440/import-certificates-using-command-line-on-windows
 
 ## Linux Installation
   - https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md
