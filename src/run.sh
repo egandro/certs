@@ -22,7 +22,8 @@ export DOMAIN=$2
 cd /work
 make -f /src/Makefile
 
-USER=$(stat -c '%u' /work)
-GROUP=$(stat -c '%g' /work)
-chown -R $USER:$GROUP *.pem *.zip *.deb
+#USER=$(stat -c '%u' /work)
+#GROUP=$(stat -c '%g' /work)
+#chown -R $USER:$GROUP *.pem *.zip *.deb
 
+rm -f /work/*.yml
