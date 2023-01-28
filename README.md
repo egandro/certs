@@ -17,6 +17,9 @@
   - certmgr.msc
   - idea how to create a msi file via Docker <https://github.com/dactivllc/docker-wix>
 
+## Linux Installation
+  - https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md
+
 ## simple approach
 
   - <https://github.com/BenMorel/dev-certificates>
