@@ -9,7 +9,15 @@
   - https://nfpm.goreleaser.com/
 
 ## Testing
-  - openssl s_client -showcerts -connect raspberrypi.my.localnet:8443 < /dev/null
+  - edit /etc/hosts and add "mywebserver.my.localnet" to 127.0.0.1
+  - make build default-domain
+  - cd test
+  - make build run
+  - openssl s_client -showcerts -connect mywebserver.my.localnet:8443 < /dev/null
+
+## Install / Remove Root certificate
+  - install: sudo dpkg -i certs/my-localnet-ca_*_all.deb
+  - remove: sudo dpkg -r my-localnet-ca
 
 ## Windows Certstore
 
@@ -19,7 +27,7 @@
   - Windows CLI: https://superuser.com/questions/1506440/import-certificates-using-command-line-on-windows
   - <https://stackoverflow.com/questions/23869177/import-certificate-to-trusted-root-but-not-to-personal-command-line>
   - Windows
-      - To add, use the command: 
+      - To add, use the command:
       - `certutil -addstore -f "ROOT" new-root-certificate.crt`
       - To remove, use the command:
       - `certutil -delstore "ROOT" serial-number-hex`

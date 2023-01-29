@@ -8,7 +8,7 @@ fi
 
 if [[ ! $# -eq 2 ]] ; then
     echo "usage: $0 <hostname> <domainname>"
-    echo "    example: $0 raspberrypi my.localdomain"
+    echo "    example: $0 mywebserver my.localdomain"
     echo "    example: $0 "*" localnet"
     exit 1
 fi
