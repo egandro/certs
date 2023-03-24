@@ -1,5 +1,5 @@
 SERVICE=certs
-DEFAULT_DOMAIN=my.localnet
+DEFAULT_DOMAIN=my.local
 DEFAULT_CHROME_NAME=mycert
 
 all:: build
